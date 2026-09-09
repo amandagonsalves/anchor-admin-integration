@@ -1,4 +1,4 @@
-# anchor-rust
+# Anchor
 
 A Stellar anchor **business server** written in Rust, running behind the
 SDF's `stellar/anchor-platform` reference image. The platform owns the SEP
