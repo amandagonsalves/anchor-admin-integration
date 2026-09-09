@@ -1,0 +1,30 @@
+[package]
+name = "anchor-rust"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+askama = "0.16.1"
+axum = "0.8.9"
+base64 = "0.23.1"
+chrono = { version = "0.4.45", features = ["serde"] }
+dotenvy = "0.15.7"
+ed25519-dalek = "2.2.0"
+futures = "0.3.34"
+hex = "0.4.3"
+jsonwebtoken = { version = "11.0.0", default-features = false, features = ["rust_crypto", "use_pem"] }
+rand = "0.10.2"
+reqwest = { version = "0.13.4", features = ["form", "json", "query"] }
+rust_decimal = { version = "1.43.0", features = ["serde-with-str"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+serde_urlencoded = "0.7.1"
+sqlx = { version = "0.9.0", features = ["runtime-tokio", "postgres", "uuid", "chrono", "rust_decimal", "migrate"] }
+stellar-base = "0.7.0"
+stellar-horizon = "0.8.0"
+thiserror = "2.0.20"
+tokio = { version = "1.53.1", features = ["full"] }
+tower-http = { version = "0.7.1", features = ["fs"] }
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+uuid = { version = "1.26.0", features = ["v4", "serde"] }

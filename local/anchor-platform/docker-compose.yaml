@@ -1,0 +1,57 @@
+services:
+  # SEP server, Platform API, event processor, and Stellar Observer.
+  # anchor-rust itself (run via `cargo run` on the host, not in this
+  # compose file) is the business server it calls back into.
+  platform:
+    platform: linux/amd64
+    image: stellar/anchor-platform:latest
+    command: --sep-server --platform-server --event-processor --stellar-observer
+    volumes:
+      - ./config:/config
+    env_file:
+      - ./dev.env
+    environment:
+      SECRET_SEP10_SIGNING_SEED: ${HOST_SEP10_SECRET_KEY}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8080:8080" # SEP server (Stellar Protocol endpoints)
+      - "8085:8085" # Platform API server
+    depends_on:
+      - platform-db
+      - kafka
+
+  # Kafka message broker bridging the platform's internal event stream to
+  # our `/event` HTTP callback (plaintext only, no SASL/SSL — local dev only).
+  kafka:
+    platform: linux
+    image: confluentinc/cp-kafka:7.4.3
+    ports:
+      - "29192:29092"
+      - "29196:29096"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29096'
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      CLUSTER_ID: 'ciWo7IWazngRchmPES6q5A=='
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_LISTENERS: "PLAINTEXT://kafka:29092,CONTROLLER://kafka:29096"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:29092"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+
+  # The platform's own database — separate from anchor-rust's own Postgres
+  # (see the root README), which the business server owns independently.
+  platform-db:
+    image: postgres:15.2-alpine
+    ports:
+      - "5461:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password

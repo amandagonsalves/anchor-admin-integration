@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{{ action_title }}</title>
+  <style>
+    body { font-family: sans-serif; max-width: 480px; margin: 40px auto; padding: 0 16px; }
+    label { display: block; margin-top: 12px; }
+    input { width: 100%; padding: 8px; box-sizing: border-box; }
+    button { margin-top: 20px; padding: 10px 20px; }
+  </style>
+</head>
+<body>
+  <h1>{{ action_title }}</h1>
+  <form method="post" action="/sep24/interactive/submit">
+    <input type="hidden" name="transaction_id" value="{{ transaction_id }}">
+    <input type="hidden" name="token" value="{{ token }}">
+    <label>Amount ({{ asset_code }})
+      <input type="text" name="amount" value="{{ amount }}" required>
+    </label>
+    {% for field in missing_fields %}
+    <label>{{ field.description }}
+      <input type="text" name="{{ field.name }}" required>
+    </label>
+    {% endfor %}
+    <button type="submit">{{ submit_label }}</button>
+  </form>
+</body>
+</html>
